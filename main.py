@@ -1,28 +1,35 @@
-import plotly.express as px
-import geopandas as gpd
-import osmnx as ox
+import folium
+from pyrosm import OSM
+from flask import Flask, render_template_string
+import os
 
-# Retrieve the boundaries for Ukraine
-ukraine = ox.geocode_to_gdf('Ukraine')
+# Specify the path to the Geofabrik PBF file
+pbf_file = "path/to/ukraine-latest.osm.pbf"
 
-# Create a Plotly map with enhanced UI
-fig = px.choropleth_mapbox(
-    ukraine,
-    geojson=ukraine.geometry,
-    locations=ukraine.index,
-    color_discrete_sequence=["#0077b6"],  # Custom color for Ukraine
-    mapbox_style="carto-positron",        # Cleaner style for better UI
-    center={"lat": 48.3794, "lon": 31.1656},
-    zoom=5,
-    opacity=0.1,                           # Adjust transparency for a softer look
-)
+# Load data using Pyrosm
+osm = OSM(pbf_file)
+buildings = osm.get_buildings()
+roads = osm.get_network("driving")
 
-# Update layout for focused UI
-fig.update_layout(
-    title="Interactive Map of Ukraine",
-    mapbox={"center": {"lat": 48.3794, "lon": 31.1656}, "zoom": 5},
-    margin={"r":0, "t":0, "l":0, "b":0},  # Remove margins for full-screen map
-    showlegend=False,                     # Remove legend for a cleaner look
-)
+# Create a Folium map centered on a location
+map_center = [50.450001, 30.523333]  # Kyiv, Ukraine
+map = folium.Map(location=map_center, zoom_start=10)
 
-fig.show()
+folium.GeoJson(buildings).add_to(map)
+folium.GeoJson(roads).add_to(map)
+
+# Save the map HTML as a string instead of a file
+map_html = map._repr_html_()
+
+# Initialize Flask
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    # Render the HTML map directly
+    return render_template_string(map_html)
+
+# Run Flask app
+if __name__ == "__main__":
+    print("Serving the map at http://127.0.0.1:5000")
+    app.run(debug=True)
