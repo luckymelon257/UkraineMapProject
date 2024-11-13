@@ -5,7 +5,7 @@ import os
 
 # Specify the path to the Geofabrik PBF file
 pbf_file = "path/to/ukraine-latest.osm.pbf"
-
+#321
 # Load data using Pyrosm
 osm = OSM(pbf_file)
 buildings = osm.get_buildings()
