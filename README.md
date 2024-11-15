@@ -24,7 +24,11 @@ To get started with this project, follow the instructions below.
    pip install -r requirements.txt
    ```
 ### Usage
-To generate and view the map, start the server and access the following URL:
+- Running the server
+  ```bash
+  python manage.py runserver
+  ```
+- To generate and view the map, start the server and access the following URL:
    ```bash
    http://127.0.0.1:8000/map/generate_map/
    ```
